@@ -6,7 +6,7 @@ there are three topics, html for render, python for calculation, sql for storage
 
 - html
 
-this is important since [seeing](https://masara24.github.io/Trade) is believing,
+this is important since [seeing](https://masara24.github.io/Trade/) is believing,
 
 - python
 
