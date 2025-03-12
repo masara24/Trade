@@ -1,0 +1,192 @@
+
+<html>
+   <head>
+      <title>Highcharts Preditcion</title>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/stock/modules/accessibility.js"></script>
+
+   </head>
+/*
+import efinance as ef
+import pandas as pd
+import datetime
+
+#ss = ef.stock.get_realtime_quotes(['美股'])
+#print(ss)
+date = '20250208'
+#date2 = '20250308'
+code = 'TSLA'
+ns = ef.stock.get_quote_history(code, beg = date)#, end = date2)
+print(ns['日期'].values.tolist())
+
+ns['日期'] = pd.to_datetime(ns['日期'], errors='coerce')
+ns['日期'] = ns['日期'].apply(lambda x: datetime.datetime.timestamp(x))
+ns['日期'] = ns['日期'].apply(lambda x: int(round(x * 1000)))
+ohlc = (ns[['日期', '开盘', '收盘', '最高', '最低']].values.tolist())
+tover = ns[['日期', '涨跌幅']].values.tolist()
+#print(ohlc)
+#print(tover)
+max_values = ns.max()
+mx = (max_values['最高'])
+min_values = ns.min()
+mn = (min_values['最低'])
+rate = (mn - mx) / mx * 100.0
+#rate = ' ' + str(rate) + '%' if rate < 0 else ' +' + str(rate) + '%' 
+hold = '1000@330'
+*/      
+
+   <body>
+
+<div id="container2" style="height: 700px; min-width: 310px">
+
+</div><script language="JavaScript">
+
+(async () => {
+ 
+
+
+
+  // create the chart2
+  Highcharts.stockChart('container2', {
+     title: {
+      text:  ' TSLA1000@330 ' 
+    },
+     xAxis: {
+/*
+    plotBands: [{
+    color: 'yellow', // Color value
+    from: '2025-02-13',
+           to: '2025-03-04',
+                   type: 'datetime'
+  }]
+*/
+
+  plotLines: [{
+    color: 'yellow', // Color value
+    dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+    type: 'datetime',
+
+    value: '2025-02-27', // Value of where the line will appear
+    width: 2, // Width of the line    
+label: { 
+    text: '2025-02-27', // Content of the label. 
+align: 'left'
+  }
+
+  }]
+    },
+
+    yAxis: [{
+      labels: {
+        align: 'right',
+        x: -3
+      },
+      title: {
+        text: '$'
+      },
+      height: '60%',
+      lineWidth: 2,
+      resize: {
+        enabled: true
+      }, plotBands: [ {
+            from: 240,
+            to: 260,
+            color: 'rgba(68, 170, 205, 0.1)',
+            label: {
+                text: 'hell',
+                style: {
+                    color: '#606060'
+                }
+            }
+        }, {
+            from: 260,
+            to: 280,
+            color: 'rgba(68, 170, 215, 0.1)',
+            label: {
+                text: 'dead',
+                style: {
+                    color: '#606060'
+                }
+            }
+        }, {
+            from: 280,
+            to: 300,
+            color: 'rgba(68, 170, 225, 0.1)',
+            label: {
+                text: 'break',
+                style: {
+                    color: '#606060'
+                }
+            }
+        }, { 
+            from: 300,
+            to: 320,
+            color: 'rgba(0, 0, 0, 0)',
+            label: {
+                text: 'support',
+                style: {
+                    color: '#606060'
+                }
+       }
+        }],
+  plotLines: [{
+    color: 'yellow', // Color value
+    //dashStyle: 'longdashdot', 
+    value: 330, // Value of where the line will appear
+    width: 2, // Width of the line    
+label: { 
+    text: 'cost', // Content of the label. 
+    align: 'left', // Positioning of the label. Default to center.
+    x: +10 // Amount of pixels the label will be repositioned according to the alignment. 
+  }
+  }]
+
+    }, {
+      labels: {
+        align: 'right',
+        x: -3
+      },
+      title: {
+        text: '%'
+      },
+      top: '65%',
+      height: '35%',
+      offset: 0,
+      lineWidth: 2
+    }],
+
+    series: [{
+      type: 'ohlc',
+      name: 'real',
+      color: 'orange',
+      data: [[1739116800000.0, 356.21, 350.73, 362.7, 350.51], [1739203200000.0, 345.8, 328.5, 349.37, 325.1], [1739289600000.0, 329.94, 336.51, 346.4, 329.12], [1739376000000.0, 345.0, 355.94, 358.69, 342.85], [1739462400000.0, 360.62, 355.84, 362.0, 347.5], [1739808000000.0, 355.01, 354.11, 359.1, 350.02], [1739894400000.0, 354.0, 360.56, 367.34, 353.67], [1739980800000.0, 361.51, 354.4, 362.3, 348.0], [1740067200000.0, 353.44, 337.8, 354.98, 334.42], [1740326400000.0, 338.14, 330.53, 342.397, 324.7], [1740412800000.0, 327.025, 302.8, 328.89, 297.251], [1740499200000.0, 303.715, 290.8, 309.0, 288.04], [1740585600000.0, 291.16, 281.95, 297.23, 280.88], [1740672000000.0, 279.5, 292.98, 293.88, 273.6], [1740931200000.0, 300.34, 284.65, 303.94, 277.3], [1741017600000.0, 270.93, 272.04, 284.35, 261.84], [1741104000000.0, 272.92, 279.1, 279.55, 267.71], [1741190400000.0, 272.06, 263.45, 272.65, 260.02], [1741276800000.0, 259.32, 262.67, 266.25, 250.73], [1741536000000.0, 252.535, 222.15, 253.37, 220.0], [1741622400000.0, 225.305, 230.58, 237.065, 217.02]]
+  },    {
+      type: 'line',
+      name: 'expect',
+      color: 'purple',
+      
+      data: [[1739116800000.0, 357], [1739203200000.0, 360], [1739289600000.0, 320], [1739376000000.0, 330], [1739462400000.0, 342], [1739808000000.0, 335], [1739894400000.0, 360], [1739980800000.0, 345], [1740067200000.0, 350], [1740326400000.0, 330], [1740412800000.0, 331], [1740499200000.0, 332], [1740585600000.0, 331], [1740672000000.0, 331], [1740931200000.0, 332], [1741017600000.0, 333], [1741104000000.0, 320], [1741190400000.0, 310], [1741276800000.0, 350], [1741536000000.0, 330]]  
+ },   {
+      type: 'column',
+      name: 'ratio',
+      yAxis: 1,
+      color: 'green',
+      negativeColor: 'red',
+      data: [[1739116800000.0, -3.01], [1739203200000.0, -6.34], [1739289600000.0, 2.44], [1739376000000.0, 5.77], [1739462400000.0, -0.03], [1739808000000.0, -0.49], [1739894400000.0, 1.82], [1739980800000.0, -1.71], [1740067200000.0, -4.68], [1740326400000.0, -2.15], [1740412800000.0, -8.39], [1740499200000.0, -3.96], [1740585600000.0, -3.04], [1740672000000.0, 3.91], [1740931200000.0, -2.84], [1741017600000.0, -4.43], [1741104000000.0, 2.6], [1741190400000.0, -5.61], [1741276800000.0, -0.3], [1741536000000.0, -15.43]]      
+}, {
+      type: 'line',
+      name: 'benefit',
+      color: 'yellow',
+            yAxis: 1,
+//
+      data: [[1739116800000.0, 0], [1739203200000.0, 0], [1739289600000.0, 0], [1739376000000.0, 0], [1739462400000.0, 0], [1739808000000.0, 0], [1739894400000.0, 0], [1739980800000.0, 0], [1740067200000.0, 0], [1740326400000.0, 0], [1740412800000.0, 0.5], [1740499200000.0, 0.2], [1740585600000.0, -0.2], [1740672000000.0, 0.8], [1740931200000.0, -0.3], [1741017600000.0, 0.4], [1741104000000.0, -0.7], [1741190400000.0, 0.3], [1741276800000.0, 0.2], [1741536000000.0, 0.1]]  
+ 
+       }]
+  });
+})();
+</script>
+   </body>
+   
+</html>
