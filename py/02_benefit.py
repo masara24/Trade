@@ -241,5 +241,5 @@ def put(market):
 if yourinput[0] == "-": put(market)
 else: call(market)
 
-sys.exit("\n\t\tcontinue akshare? connect to internet...")
+sys.exit("\n\t\tcontinue trade? connect to app...")
 
