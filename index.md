@@ -14,4 +14,4 @@ One should be able to use python and javascript, before quantum...
 <!-- contact and transfer -->
 ### Usdc
 - [biya-polygon]() ---> 0x593d5fAF6F01C7Fd3d0FD09DA1b79cABaC80Ed92
-- [okx-ethrium]() ---> 0x5e5963dbbea40339ea8c795e638f059e27410b6c
+- [okx-etherium]() ---> 0x5e5963dbbea40339ea8c795e638f059e27410b6c
