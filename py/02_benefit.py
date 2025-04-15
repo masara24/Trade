@@ -1,9 +1,8 @@
 import pandas as pd
 import sys
-
-h = "python df_benefit.py -10@9.8,-10@12,20@13 1"
+#pip install tabulate
+h = "python benefit.py -10@9.8,-10@12,20@9 1"
 if len(sys.argv)-1 !=2: sys.exit(h)
-print("################market 1 = us, 2 = hk, 3 = etf ###########################")
 
 yourinput = sys.argv[1]
 market = int(sys.argv[2])
@@ -170,7 +169,7 @@ def call(market):
     )
 
     print(gfg)
-
+    
 def put(market):
     print("################estimate put with fee###############################")
     transaction = yourinput.split(",")
@@ -236,10 +235,11 @@ def put(market):
     )
     # df.to_excel("save.xlsx", sheet_name='save')
     print(gfg)
-
+    
 
 if yourinput[0] == "-": put(market)
 else: call(market)
+print("################market 1 = us, 2 = hk, 3 = etf ###########################")
 
 sys.exit("\n\t\tcontinue trade? connect to app...")
 
