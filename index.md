@@ -11,7 +11,9 @@ One should be able to use python and javascript, before quantum...
 - [short](html/baba_short.html)
 
 ### Plan
-1. 
+1. Select Stock
+2. Analysis Stock
+3. 
  
 
 <!-- contact and transfer -->

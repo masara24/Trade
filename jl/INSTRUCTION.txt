@@ -1,0 +1,51 @@
+tsinghua based...
+
+1. python download
+https://registry.npmmirror.com/binary.html?path=python/3.9.7/
+1.2 julia
+https://mirrors.tuna.tsinghua.edu.cn/julia-releases/bin/
+
+2. install and open git-cmd
+C:\Users\Administrator\AppData\Local\Programs\Python\Python39\python.exe
+
+3. install jill 
+C:\Users\Administrator\AppData\Local\Programs\Python\Python39\Scripts\pip install jill
+
+C:\Users\Administrator\AppData\Local\Programs\Python\Python39\Scripts\jill.exe install
+(must be 64bit python)
+====
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple
+(ERROR: No matching distribution found for setuptools>=40.8.0)
+====
+3.2 
+set JULIA_PKG_SERVER=https://mirrors.tuna.tsinghua.edu.cn/julia
+Pkg.add("Plots")
+C:\Users\Administrator\AppData\Local\julias\bin\julia.cmd
+
+
+4. efinance
+C:\Users\Administrator\AppData\Local\Programs\Python\Python39\Scripts\pip --default-timeout=100 install efinance -i http://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
+
+5. git
+ping github.com
+
+git clone https://github.com/masara24/Trade.git
+
+echo "git config"
+git config --global http.sslVerify false
+git config --global user.email "Clear@Clear.com"
+git config --global user.name "Clear"
+
+git config core.autocrlf false
+====
+add new things here
+====
+git add *.md
+git commit -m "up"
+git push
+
+6. csdn
+javascript:window.oncontextmenu=document.oncontextmenu=document.oncopy=null; [...document.querySelectorAll('body')].forEach(dom => dom.outerHTML = dom.outerHTML); [...document.querySelectorAll('body, body *')].forEach(dom => {['onselect', 'onselectstart', 'onselectend', 'ondragstart', 'ondragend', 'oncontextmenu', 'oncopy'].forEach(ev => dom.removeAttribute(ev)); dom.style['user-select']='auto';});
+
+
+
