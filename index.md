@@ -10,6 +10,9 @@ One should be able to use python and javascript, before quantum...
 - [benefit](html/tsla_benefit.html) 
 - [short](html/baba_short.html)
 
+### Plan
+1. 
+ 
 
 <!-- contact and transfer -->
 ### Usdc
