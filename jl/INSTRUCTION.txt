@@ -53,4 +53,5 @@ https://mirrors.aliyun.com/python-release/windows/python-3.12.10-amd64.exe
 pip install -i https://mirrors.aliyun.com/pypi/simple numpy
 C:\Users\Administrator\AppData\Local\Programs\Python\Python312\Scripts\pip install -i https://mirrors.aliyun.com/pypi/simple efinance
 C:\Users\Administrator\AppData\Local\Programs\Python\Python312\Scripts\pip install -i https://mirrors.aliyun.com/pypi/simple jill
+jill install
 
