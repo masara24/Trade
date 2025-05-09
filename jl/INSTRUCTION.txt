@@ -17,6 +17,7 @@ C:\Users\Administrator\AppData\Local\Programs\Python\Python39\Scripts\jill.exe i
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple
 (ERROR: No matching distribution found for setuptools>=40.8.0)
 ====
+
 3.2 
 set JULIA_PKG_SERVER=https://mirrors.tuna.tsinghua.edu.cn/julia
 Pkg.add("Plots")
@@ -47,5 +48,9 @@ git push
 6. csdn
 javascript:window.oncontextmenu=document.oncontextmenu=document.oncopy=null; [...document.querySelectorAll('body')].forEach(dom => dom.outerHTML = dom.outerHTML); [...document.querySelectorAll('body, body *')].forEach(dom => {['onselect', 'onselectstart', 'onselectend', 'ondragstart', 'ondragend', 'oncontextmenu', 'oncopy'].forEach(ev => dom.removeAttribute(ev)); dom.style['user-select']='auto';});
 
-
+7. aliyun pip and julia
+https://mirrors.aliyun.com/python-release/windows/python-3.12.10-amd64.exe
+pip install -i https://mirrors.aliyun.com/pypi/simple numpy
+C:\Users\Administrator\AppData\Local\Programs\Python\Python312\Scripts\pip install -i https://mirrors.aliyun.com/pypi/simple efinance
+C:\Users\Administrator\AppData\Local\Programs\Python\Python312\Scripts\pip install -i https://mirrors.aliyun.com/pypi/simple jill
 

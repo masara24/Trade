@@ -1,0 +1,103 @@
+###based on efinance###
+
+# -*- coding:utf-8 -*-
+
+code = 'unh'
+
+date1 = '2025-04-22' 
+
+date2 =  '2025-04-29' 
+
+import datetime
+
+def get_today():
+
+    """
+
+    :return: current time year month day
+
+    """
+
+    my_today = datetime.date.today()
+
+    return str(my_today)
+
+date2 = get_today()
+
+data = {
+
+    'date': [date2],
+
+    'code': [code]
+
+}
+
+import pandas as pd
+
+df = pd.DataFrame(data)
+
+def get_code(code):
+
+    print(data)
+
+import efinance as ef
+
+def get_stock_close(code):
+
+    data = ef.stock.get_quote_history(code)
+
+    data.rename(columns={'日期':'date',   '开盘':'open','收盘':'close',   '最高':'high',       '最低':'low',      '成交量':'volume',           '成交额':'amount',    '涨跌幅':'ratio','换手率':'turnover'}, inplace=True)
+
+    return (data[['date', 'close']])
+
+def get_stock_price(code):
+
+    data = ef.stock.get_quote_history(code)
+
+    data.rename(columns={'日期':'date',   '开盘':'open','收盘':'close',   '最高':'high',       '最低':'low',      '成交量':'volume',           '成交额':'amount',    '涨跌幅':'ratio','换手率':'turnover'}, inplace=True)
+
+    return (data[['date', 'close', 'high', 'low', 'open', 'volume', 'turnover']])
+
+def get_fund_close(code):
+
+    data = ef.fund.get_quote_history(code)[::-1].reset_index(drop=True)
+
+    data.rename(columns={'日期':'date',   '单位净值':'close',   '累计净值':'value',   '涨跌幅':'ratio'}, inplace=True)
+
+    return (data[['date', 'close']])
+
+data = get_stock_close(code)
+
+def filter_data_date(data, date1, date2):
+
+    data = data[(data['date'] <= date2) & (data['date'] >= date1)].reset_index(drop=True)
+
+    return (data)
+
+def filter_data_column(data, column, value1, value2):
+
+    data = data[(data[column] <= value2) & (data[column] >= value1)].reset_index(drop=True)
+
+    return (data)
+
+data = filter_data_column(data, 'close', 0, 100000)
+
+def add_flow(code, mkt_data):
+
+    data = ef.stock.get_history_bill(code)
+
+    data['流入'] = data['小单净流入']+data['中单净流入']+data['大单净流入']+data['超大单净流入']
+
+    data.rename(columns={'日期':'date'}, inplace=True)
+
+    df = pd.merge(mkt_data, data, on='date', how='outer').fillna(0)
+
+    df.rename(columns={'流入':'flow', '涨跌幅':'ratio'}, inplace=True)
+	
+    return (df[['date', 'close', 'flow', 'ratio']])
+
+data = add_flow(code, data)
+
+print(data)
+
+def draw_data_column(): return 0
