@@ -98,6 +98,10 @@ def add_flow(code, mkt_data):
 
 data = add_flow(code, data)
 
-print(data)
-
 def draw_data_column(): return 0
+
+def save_data_csv(code, data):
+
+    return data.to_csv(f"{code}.csv")
+
+save_data_csv(code, data)

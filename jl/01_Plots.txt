@@ -1,3 +1,13 @@
+using Pkg
+Pkg.add("Dates")
+Pkg.add("Plots")
+Pkg.add("PlotyJS")
+Pkg.add("CSV")
+Pkg.add("DataFrames")
+
+using CSV
+using DataFrames
+using Dates
 using Plots
 plotlyjs()
 
@@ -11,3 +21,7 @@ x3 = [15.6, 20.1, 25.9, 31.0, 36.7, 42.1, 48.3, 53.8, 60.3, 66.0, 72.8, 79.1]
 y3 = [0.0148, 0.0036, 0.0358, 0.0092, 0.0610, 0.0183, 0.0913, 0.0321, 0.1266, 0.0506, 0.1696, 0.0763]
 
 plot(x3, y3, title="激发曲线", label="V-I综合曲线", xlabel="加速电压V", ylabel="激发电流I", leg=(:outertopright), titlefontsize=10)
+
+### using csv and dataframe
+path = "C:\\Users\\Administrator\\Documents\\666\\tmp\\Punh.csv"
+df = CSV.File(path) |> DataFrame
