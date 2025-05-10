@@ -104,4 +104,14 @@ def save_data_csv(code, data):
 
     return data.to_csv(f"{code}.csv")
 
-save_data_csv(code, data)
+#save_data_csv(code, data)
+
+
+
+def open_data_html(code, data):
+    data.to_html(f"{code}.html", header=True, index=False, justify='center'))
+
+
+open_data_html(code, data)
+import os
+os.startfile("unh.html")
