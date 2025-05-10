@@ -74,13 +74,13 @@ def filter_data_date(data, date1, date2):
 
     return (data)
 
-def filter_data_column(data, column, value1, value2):
+def filter_data_value(data, column, value1, value2):
 
     data = data[(data[column] <= value2) & (data[column] >= value1)].reset_index(drop=True)
 
     return (data)
 
-data = filter_data_column(data, 'close', 0, 100000)
+data = filter_data_value(data, 'close', 0, 100000)
 
 def add_flow(code, mkt_data):
 
@@ -106,12 +106,79 @@ def save_data_csv(code, data):
 
 #save_data_csv(code, data)
 
-
+import os
 
 def open_data_html(code, data):
-    data.to_html(f"{code}.html", header=True, index=False, justify='center'))
+
+    t = data.to_html()
+
+    with open(f"{code}.html", 'w') as f: f.write(f"<center>{t}</center>")
+    
+    os.startfile(f"{code}.html")
+
+#open_data_html(code, data)
+
+def calculate_ma(data, N):
+    
+    data['m'+str(N)] = ''
+    data['m'+str(N)] = data['close'].rolling(window=N).mean().dropna()
+    return data
+
+def calculate_pass(data, N, M):
+    data[str(N)+'over'+str(M)] = ''
+    calculate_ma(data, N)
+    calculate_ma(data, M)
+    ma_position = data['m'+str(N)] > data['m'+str(M)]
+    data.loc[ma_position[(ma_position == True) & (ma_position.shift() == False)].index, str(N)+'over'+str(M)] = 'up'
+    data.loc[ma_position[(ma_position == False) & (ma_position.shift() == True)].index, str(N)+'over'+str(M)] = 'down'
+    return data
+
+calculate_pass(data, 5, 10)
+
+def calculate_jump(data):
+    data['openjump'] = data['open'] - data['close'].shift(1)
+    data['highlow'] = datap['high'] - data['low']
+    return data
+
+def calculate_ewma(data, col, N):
+    data['ewm'+str(N)] = ''
+    data['ewm'+str(N)] = data[col].ewm(span=N, adjust=False).mean()
+    return data
+
+
+def calculate_macd(data, N, M, P): 
+
+    calculate_ewma(data, 'close', N) #12
+    calculate_ewma(data, 'close', M) #26
+    data['dif'] = data['ewm'+str(N)] - data['ewm'+str(M)] # fast - slow
+
+    data['dea'] = data['dif'].ewm(span=P, adjust=False).mean()
+    
+    data['MACD'] = 2 * (data['dif'] - data['dea'])
+    
+    return data
+
+def calculate_macdx(data, N, M, P):
+    
+    calculate_macd(data, N, M, P)
+    data['macd_cross'] = ''
+    position = data['dif'] > data['dea']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'macd_cross'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True )].index, 'macd_cross'] = 'dead'
+    return data
+
+                    
+calculate_macdx(data, 12, 26, 9)
+
+def filter_data_column(data, column):
+
+    data = data[column]
+
+    return data
+
+data = filter_data_value(data, 'flow', 0, 100000)
+#data = filter_data_column(data, ["date", "close", "5over10"])
 
 
 open_data_html(code, data)
-import os
-os.startfile("unh.html")
+
