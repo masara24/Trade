@@ -180,5 +180,93 @@ data = filter_data_value(data, 'flow', 0, 100000)
 #data = filter_data_column(data, ["date", "close", "5over10"])
 
 
-open_data_html(code, data)
 
+
+def draw_data_html(code, data, col):
+
+    head = (data.columns.values.tolist())
+
+    d = ''
+    c = ''
+    for i in head: 
+    
+        for j in data[i].values: # update value
+            if i == 'date': j = "'"+f'{j}'+"'"; d = d + str(j) + ',' + ' '; 
+        
+            if i == col: c = c + str(j) + ',' + ' ';
+
+    d = d[:-2]
+    c = c[:-2]
+
+    html = '''<html>
+    <head>
+    <meta charset="gbk" />
+    <title>Highcharts %s</title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+       <script src="http://code.highcharts.com/modules/data.js"></script>   
+       
+    </head>
+    <body>
+
+    <center>
+    <div id="container"></div>
+
+    </center>
+    <script language="javascript" type="text/javascript">
+      var chart;
+      $(document).ready(function () {
+        chart = new Highcharts.Chart({
+          chart: {
+            renderTo: 'container',
+            defaultSeriesType: 'line', //line、spline、area、areaspline、bar、column
+            
+          },
+          title: {
+
+            text: 'y=%s vs x=date'
+
+        },
+
+        xAxis: {
+
+            categories: [%s]
+
+        },
+
+        yAxis: [{
+
+                title: {
+
+                    text: 'y'
+
+                }
+
+            }],        
+
+        series: [{
+
+            name: 'x',
+
+            type: 'line',
+
+            data: [%s],
+
+
+        }]
+
+    });
+      });
+      </script>
+
+
+    </body>
+    </html>''' % (code, col, d, c)
+
+    with open(f"{code}.html", 'w') as f: f.write(html)
+    
+    os.startfile(f"{code}.html")
+
+
+draw_data_html(code, data, 'close')
+    
