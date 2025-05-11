@@ -386,6 +386,47 @@ def calculate_dmax(data, N, M, P):
 
 calculate_dmax(data, 5, 10, 6)
 #print(data)
+
+def calculate_psy(data, N, M):
+    #N=12, M=6
+    up_days = data['close'] > data['close'].shift(1)
+
+    up_days_in_period = up_days.rolling(window=N, min_periods=1).sum()
+ 
+    psy = (up_days_in_period / N) * 100
+ 
+    mapsy = psy.rolling(window=M).mean()
+
+    data['psy'] = psy
+
+    return data
+
+def calculate_dpo(data, N):
+    #N=20, M=6
+
+    ma = data['close'].rolling(N).mean()
+ 
+    dpo = data['close'] - ma.shift(round(N/2) + 1)
+ 
+    
+
+    data['dpo'] = dpo
+
+    return data 
+
+def calculate_dpox(data, N, M):
+    calculate_dpo(data, N)
+    data['adpo'] = data['dpo'].rolling(M).mean()
+
+    data['dpo_corss'] = ''
+    position = data['dpo'] > data['adpo']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'dpo_corss'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True)].index, 'dpo_corss'] = 'dead'
+    return data
+
+calculate_dpox(data, 5, 10)
+
+
 open_data_html(code, data)
 
 ### have low high
@@ -453,6 +494,19 @@ def calculate_dmi(data, N, M):
  
     return data
 
+def calculate_wr(data, N):
+    
+    high = data['high'].rolling(N).max()
+    close = date['close']
+
+    low = data['low'].rolling(N).min()
+ 
+    epsilon = np.finfo(float).eps
+
+    data['wr'] = (high - close) / (high - low + epsilon) * 100
+ 
+    return data
+
 
 ### have volume
 def calculate_vwap(data):
@@ -465,12 +519,11 @@ def calculate_emv(data, N, M):
 
     data['mid'] = 100 * (data['high'] + data['low'] - data['high'].shift(1) - data['low'].shift(1)) / (
             data['high'] + data['low'])
-    data['HL_MA'] = data['HIGH'] - data['LOW']
-    data['MA_HL'] = data['HL_MA'].rolling(window=n).mean()
-    data['EMV'] = data['MID'] * data['VOLUME'] * data['HL_MA'] / data['MA_HL']
-    data['EMV'] = data['EMV'].rolling(window=n).mean()
+    hl = data['high'] - data['low']
+    mahl = data['hl'].rolling(window=N).mean()
+    data['emv'] = data['mid'] * data['volumne'] * hl / mahl
+    data['emv'] = data['emv'].rolling(window=N).mean()
 
-    # 计算MAEMV
-    data['MAEMV'] = data['EMV'].rolling(window=m).mean()
+    data['maemv'] = data['emv'].rolling(window=M).mean()
 
-    return data['VOLUME'], data['MID'], data['EMV'], data['MAEMV']
+    return data

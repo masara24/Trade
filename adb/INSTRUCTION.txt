@@ -16,6 +16,11 @@ adb kill-server
 6. reconnect 
 adb start-server
 
+7. git
+git ls-tree HEAD
+git ls-tree -r HEAD
+git ls-tree --name-only HEAD
+
 
 A. js
 javascript:window.oncontextmenu=document.oncontextmenu=document.oncopy=null; [...document.querySelectorAll('body')].forEach(dom => dom.outerHTML = dom.outerHTML); [...document.querySelectorAll('body, body *')].forEach(dom => {['onselect', 'onselectstart', 'onselectend', 'ondragstart', 'ondragend', 'oncontextmenu', 'oncopy'].forEach(ev => dom.removeAttribute(ev)); dom.style['user-select']='auto';});
@@ -25,3 +30,5 @@ B. stock
 adb pull /storage/emulated/0/qpython/stocks3/cm.py
 
 adb pull /sdcard/qpython/projects3/qpy-db/qa.db
+
+
