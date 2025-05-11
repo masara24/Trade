@@ -23,6 +23,7 @@ def get_today():
     return str(my_today)
 
 date2 = get_today()
+print(date2)
 
 data = {
 
@@ -116,8 +117,6 @@ def open_data_html(code, data):
     
     os.startfile(f"{code}.html")
 
-#open_data_html(code, data)
-
 def calculate_ma(data, N):
     
     data['m'+str(N)] = ''
@@ -125,9 +124,10 @@ def calculate_ma(data, N):
     return data
 
 def calculate_pass(data, N, M):
-    data[str(N)+'over'+str(M)] = ''
+    
     calculate_ma(data, N)
     calculate_ma(data, M)
+    data[str(N)+'over'+str(M)] = ''
     ma_position = data['m'+str(N)] > data['m'+str(M)]
     data.loc[ma_position[(ma_position == True) & (ma_position.shift() == False)].index, str(N)+'over'+str(M)] = 'up'
     data.loc[ma_position[(ma_position == False) & (ma_position.shift() == True)].index, str(N)+'over'+str(M)] = 'down'
@@ -145,7 +145,6 @@ def calculate_ewma(data, col, N):
     data['ewm'+str(N)] = data[col].ewm(span=N, adjust=False).mean()
     return data
 
-
 def calculate_macd(data, N, M, P): 
 
     calculate_ewma(data, 'close', N) #12
@@ -154,7 +153,7 @@ def calculate_macd(data, N, M, P):
 
     data['dea'] = data['dif'].ewm(span=P, adjust=False).mean()
     
-    data['MACD'] = 2 * (data['dif'] - data['dea'])
+    data['macd'] = 2 * (data['dif'] - data['dea'])
     
     return data
 
@@ -167,8 +166,8 @@ def calculate_macdx(data, N, M, P):
     data.loc[position[(position == False) & (position.shift() == True )].index, 'macd_cross'] = 'dead'
     return data
 
-                    
 calculate_macdx(data, 12, 26, 9)
+
 
 def filter_data_column(data, column):
 
@@ -180,9 +179,10 @@ data = filter_data_value(data, 'flow', 0, 100000)
 #data = filter_data_column(data, ["date", "close", "5over10"])
 
 
+def read_data_csv(path):
+    return pd.read_csv(path)
 
-
-def draw_data_html(code, data, col):
+def draw_data_html(code, data, col, table):
 
     head = (data.columns.values.tolist())
 
@@ -211,7 +211,7 @@ def draw_data_html(code, data, col):
 
     <center>
     <div id="container"></div>
-
+    <div id="table">%s</div>
     </center>
     <script language="javascript" type="text/javascript">
       var chart;
@@ -238,7 +238,7 @@ def draw_data_html(code, data, col):
 
                 title: {
 
-                    text: 'y'
+                    text: 'y=%s'
 
                 }
 
@@ -246,7 +246,7 @@ def draw_data_html(code, data, col):
 
         series: [{
 
-            name: 'x',
+            name: 'value',
 
             type: 'line',
 
@@ -261,12 +261,216 @@ def draw_data_html(code, data, col):
 
 
     </body>
-    </html>''' % (code, col, d, c)
+    </html>''' % (code, table, col, d, col, c)
 
     with open(f"{code}.html", 'w') as f: f.write(html)
     
     os.startfile(f"{code}.html")
 
+def add_html_table(data):
 
-draw_data_html(code, data, 'close')
+    return data.to_html(classes="table")
+
+table = add_html_table(data)
+#draw_data_html(code, data, 'close', table)
     
+def calculate_rsi(data, N):
+
+    delta = data['close'].diff()
+    gain = delta.copy()
+    loss = delta.copy()
+
+    gain[gain < 0] = 0
+    loss[loss > 0] = 0
+    loss = abs(loss)
+
+    avg_gain = gain.rolling(window=N, min_periods=1).mean()
+    avg_loss = loss.rolling(window=N, min_periods=1).mean()
+
+    rs = avg_gain / (avg_loss + 1e-6)  # Avoid division by zero
+    data['rsi'+str(N)] = 100 - (100 / (1 + rs))
+
+    return data
+
+def calculate_rsix(data, N, M):
+    calculate_rsi(data, N)
+    calculate_rsi(data, M)
+    data['rsi'+str(N)+'over'+str(M)] = ''
+    rsi_position = data['rsi'+str(N)] > data['rsi'+str(M)]
+    data.loc[rsi_position[(rsi_position == True) & (rsi_position.shift() == False)].index, 'rsi'+str(N)+'over'+str(M)] = 'up'
+    data.loc[rsi_position[(rsi_position == False) & (rsi_position.shift() == True)].index, 'rsi'+str(N)+'over'+str(M)] = 'down'
+    return data
+
+
+calculate_rsix(data, 5, 10)
+
+import numpy as np
+def calculate_nine(mkt_data, n = 4):
+
+    close = data['close']# 1. ud
+    close_diff_n = close - close.shift(n)
+    ud = np.sign(close_diff_n).fillna(0)# 2. cumu_ud
+    cumu_ud = np.zeros(shape = ud.shape)
+    add_v = 0
+
+    for i, ud_i in enumerate(ud):
+
+        if add_v == 0:
+            add_v = ud_i
+            cumu_ud[i] = ud_i
+        else :
+            if add_v * ud_i < 0: #
+                cumu_ud[i] = ud_i
+                add_v = ud_i
+            else :
+                if abs(ud_i) != 0:
+                    add_v += ud_i
+                    if abs(add_v) <= 9:
+                        cumu_ud[i] = add_v
+                    else :
+                        if add_v > 0:
+                            cumu_ud[i] = 1
+                            add_v = 1
+                        else :
+                            cumu_ud[i] = -1
+                            add_v = -1
+                else :
+                    add_v = add_v + 1
+    label_ago = cumu_ud
+    label = np.zeros(shape = label_ago.shape)
+    for i, ud_i in enumerate(label_ago):
+        if ud_i == -9:
+            for k in range(9):
+                label[i - k] = -9 + k
+        elif ud_i == 9:
+            for k in range(9):
+                label[i - k] = 9 - k
+        else :
+            pass
+    mkt_data['nine'] = label.astype('int')
+    mkt_data["nine"] = mkt_data["nine"].replace(0, "")
+    mkt_data['ninec'] = label_ago
+    mkt_data['ninec'] = mkt_data['ninec'].apply(int)
+
+    return mkt_data
+data = calculate_nine(data)
+
+def calculate_roc(data, n = 5):
+    data['roc'] = 100 * (data['close'] - data['close'].shift(n)) / data['close'].shift(n)
+    return data
+
+def calculate_rocx(data, n, P):
+    calculate_roc(data)
+    data['aroc'] = data['roc'].rolling(window=P).mean()
+    data['roc_corss'] = ''
+    position = data['roc'] > data['aroc']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'roc_corss'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True)].index, 'roc_corss'] = 'dead'
+    return data
+calculate_rocx(data, 5, 10)
+
+def calculate_dma(data, N, M):
+    calculate_ma(data, N)
+    calculate_ma(data, M)
+    data['dma'] = data['m'+str(N)] - data['m'+str(M)] 
+    return data
+
+def calculate_dmax(data, N, M, P):
+    calculate_dma(data, N, M)
+    data['ama'] = data['dma'].rolling(window=P, min_periods=1).mean()
+    data['dma_corss'] = ''
+    position = data['dma'] > data['ama']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'dma_corss'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True)].index, 'dma_corss'] = 'dead'
+    return data
+
+calculate_dmax(data, 5, 10, 6)
+#print(data)
+open_data_html(code, data)
+
+### have low high
+data = get_stock_price(code)
+
+def calculate_kdj(data, N): 
+
+    low_list = data['low'].rolling(window=N, min_periods=1).min()
+
+    high_list = data['high'].rolling(window=N, min_periods=1).max()
+
+    data['rsv'] = (data['close'] - low_list) / (high_list - low_list) * 100
+
+    data['k'] = data['rsv'].ewm(com=2).mean()
+
+    data['d'] = data['k'].ewm(com=2).mean()
+
+    data['j'] = 3 * data['k'] - 2 * data['d']
+    
+    return data
+
+def calculate_kdjx(data, N):
+    
+    calculate_kdj(data, N)
+    data['kdj_cross'] = ''
+    position = data['k'] > data['d']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'kdj_cross'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True )].index, 'kdj_cross'] = 'dead'
+    return data
+
+def calculate_dmi(data, N, M):
+    # N=14, M=6
+    high = data['high']
+    low = data['low']
+    close = data['close']
+ 
+    tr1 = high - low
+    tr2 = abs(high - close.shift(1))
+    tr3 = abs(close.shift(1) - low)
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    mtr = tr.rolling(N, min_periods=1).sum()
+ 
+    hd = high - high.shift(1)
+    ld = low.shift(1) - low  #fix shift 
+    hd[hd < 0] = 0  
+    hd[hd < ld] = 0  
+    ld[ld < 0] = 0  
+    ld[ld < hd] = 0  
+ 
+    dmp = hd.rolling(N, min_periods=1).sum()
+    dmm = ld.rolling(N, min_periods=1).sum()
+ 
+    pdi = 100 * (dmp / mtr)
+    mdi = 100 * (dmm / mtr)
+ 
+    dx = 100 * abs(mdi - pdi) / (mdi + pdi)
+    adx = dx.rolling(M).mean()
+ 
+    adxr = (adx + adx.shift(M)) / 2
+ 
+    data['pdi'] = pdi
+    data['mdi'] = mdi
+    data['adx'] = adx
+    data['adxr'] = adxr
+ 
+    return data
+
+
+### have volume
+def calculate_vwap(data):
+    data['vwap'] = (data['close'] * data['volume']).cumsum() / data['volume'].cumsum()
+    return data
+
+def calculate_emv(data, N, M):
+    data['mav'] = data['volume'].rolling(window=N).mean()
+    data['vol'] = data['mav'] / data['volume']
+
+    data['mid'] = 100 * (data['high'] + data['low'] - data['high'].shift(1) - data['low'].shift(1)) / (
+            data['high'] + data['low'])
+    data['HL_MA'] = data['HIGH'] - data['LOW']
+    data['MA_HL'] = data['HL_MA'].rolling(window=n).mean()
+    data['EMV'] = data['MID'] * data['VOLUME'] * data['HL_MA'] / data['MA_HL']
+    data['EMV'] = data['EMV'].rolling(window=n).mean()
+
+    # 计算MAEMV
+    data['MAEMV'] = data['EMV'].rolling(window=m).mean()
+
+    return data['VOLUME'], data['MID'], data['EMV'], data['MAEMV']
