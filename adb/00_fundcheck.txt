@@ -1,0 +1,600 @@
+
+'''
+# write a boduan
+stock_code = '017170'; stockavg = 1.92; zgs = 33.62# yi
+st = '20250415'
+
+et  = '2025-05-14'
+
+
+
+df = ef.fund.get_quote_history(stock_code)
+st  = '2025-04-15'
+#df = df[df['日期'>st]]
+
+print (df[::-1])
+'''
+
+###based on efinance###
+
+# -*- coding:utf-8 -*-
+s = True
+
+code = '07500'
+
+s = False
+
+code = '009063'
+
+date1 = '2025-04-15' 
+
+date2 =  '2025-05-14' 
+
+import datetime
+
+def get_today():
+
+    """
+
+    :return: current time year month day
+
+    """
+
+    my_today = datetime.date.today()
+
+    return str(my_today)
+
+	
+def get_days(st, et):
+
+    date1 = datetime.datetime.strptime(st, "%Y-%m-%d")
+    date2 = datetime.datetime.strptime(et, "%Y-%m-%d")
+    return (date2 - date1).days
+
+
+
+today = get_today()
+data = {
+    'code': [code],
+    'today': [today]
+}
+
+print(data)
+
+import pandas as pd
+
+df = pd.DataFrame(data)
+
+def get_code(code):
+
+    print(data)
+
+import efinance as ef
+
+def get_stock_close(code):
+
+    data = ef.stock.get_quote_history(code)
+
+    data.rename(columns={'日期':'date',   '开盘':'open','收盘':'close',   '最高':'high',       '最低':'low',      '成交量':'volume',           '成交额':'amount',    '涨跌幅':'ratio','换手率':'turnover'}, inplace=True)
+
+    return (data[['date', 'close']])
+
+def get_stock_price(code):
+
+    data = ef.stock.get_quote_history(code)
+
+    data.rename(columns={'日期':'date',   '开盘':'open','收盘':'close',   '最高':'high',       '最低':'low',      '成交量':'volume',           '成交额':'amount',    '涨跌幅':'ratio','换手率':'turnover'}, inplace=True)
+
+    return (data[['date', 'close', 'high', 'low', 'open', 'volume', 'turnover']])
+
+def get_fund_close(code):
+
+    data = ef.fund.get_quote_history(code)[::-1].reset_index(drop=True)
+
+    data.rename(columns={'日期':'date',   '单位净值':'close',   '累计净值':'value',   '涨跌幅':'ratio'}, inplace=True)
+
+    return (data[['date', 'close']])
+
+if s: data = get_stock_close(code)
+else: data = get_fund_close(code)
+
+def filter_data_date(data, date1, date2):
+
+    data = data[(data['date'] <= date2) & (data['date'] >= date1)].reset_index(drop=True)
+
+    return (data)
+
+def filter_data_value(data, column, value1, value2):
+
+    data = data[(data[column] <= value2) & (data[column] >= value1)].reset_index(drop=True)
+
+    return (data)
+
+data = filter_data_value(data, 'close', 0, 100000)
+
+def add_flow(code, mkt_data):
+
+    data = ef.stock.get_history_bill(code)
+
+    data['流入'] = data['小单净流入']+data['中单净流入']+data['大单净流入']+data['超大单净流入']
+
+    data.rename(columns={'日期':'date'}, inplace=True)
+
+    df = pd.merge(mkt_data, data, on='date', how='outer').fillna(0)
+
+    df.rename(columns={'流入':'flow', '涨跌幅':'ratio'}, inplace=True)
+	
+    return (df[['date', 'close', 'flow', 'ratio']])
+
+
+def draw_data_column(): return 0
+
+def save_data_csv(code, data):
+
+    return data.to_csv(f"{code}.csv")
+
+import os
+
+def open_data_html(code, data):
+
+    t = data.to_html()
+
+    with open(f"{code}.html", 'w') as f: f.write(f"<center>{t}</center>")
+    
+    os.startfile(f"{code}.html")
+
+def calculate_ma(data, N):
+    
+    data['m'+str(N)] = ''
+    data['m'+str(N)] = data['close'].rolling(window=N).mean().dropna()
+    return data
+
+def calculate_pass(data, N, M):
+    
+    calculate_ma(data, N)
+    calculate_ma(data, M)
+    data[str(N)+'over'+str(M)] = ''
+    ma_position = data['m'+str(N)] > data['m'+str(M)]
+    data.loc[ma_position[(ma_position == True) & (ma_position.shift() == False)].index, str(N)+'over'+str(M)] = 'up'
+    data.loc[ma_position[(ma_position == False) & (ma_position.shift() == True)].index, str(N)+'over'+str(M)] = 'down'
+    return data
+
+calculate_pass(data, 5, 10)
+
+def calculate_jump(data):
+    data['openjump'] = data['open'] - data['close'].shift(1)
+    data['highlow'] = datap['high'] - data['low']
+    return data
+
+def calculate_ewma(data, col, N):
+    data['ewm'+str(N)] = ''
+    data['ewm'+str(N)] = data[col].ewm(span=N, adjust=False).mean()
+    return data
+
+def calculate_macd(data, N, M, P): 
+
+    calculate_ewma(data, 'close', N) #12
+    calculate_ewma(data, 'close', M) #26
+    data['dif'] = data['ewm'+str(N)] - data['ewm'+str(M)] # fast - slow
+
+    data['dea'] = data['dif'].ewm(span=P, adjust=False).mean()
+    
+    data['macd'] = 2 * (data['dif'] - data['dea'])
+    
+    return data
+
+def calculate_macdx(data, N, M, P):
+    
+    calculate_macd(data, N, M, P)
+    data['macd_cross'] = ''
+    position = data['dif'] > data['dea']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'macd_cross'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True )].index, 'macd_cross'] = 'dead'
+    return data
+
+calculate_macdx(data, 12, 26, 9)
+
+def filter_data_column(data, column):
+
+    data = data[column]
+
+    return data
+
+def read_data_csv(path):
+    return pd.read_csv(path)
+
+def draw_data_html(code, data, col, table):
+
+    head = (data.columns.values.tolist())
+
+    d = ''
+    c = ''
+    for i in head: 
+    
+        for j in data[i].values: # update value
+            if i == 'date': j = "'"+f'{j}'+"'"; d = d + str(j) + ',' + ' '; 
+        
+            if i == col: c = c + str(j) + ',' + ' ';
+
+    d = d[:-2]
+    c = c[:-2]
+
+    html = '''<html>
+    <head>
+    <meta charset="gbk" />
+    <title>Highcharts %s</title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="http://code.highcharts.com/highcharts.js"></script>
+       <script src="http://code.highcharts.com/modules/data.js"></script>   
+       
+    </head>
+    <body>
+
+    <center>
+    <div id="container"></div>
+    <div id="table">%s</div>
+    </center>
+    <script language="javascript" type="text/javascript">
+      var chart;
+      $(document).ready(function () {
+        chart = new Highcharts.Chart({
+          chart: {
+            renderTo: 'container',
+            defaultSeriesType: 'line', //line、spline、area、areaspline、bar、column
+            
+          },
+          title: {
+
+            text: 'y=%s vs x=date'
+
+        },
+
+        xAxis: {
+
+            categories: [%s]
+
+        },
+
+        yAxis: [{
+
+                title: {
+
+                    text: 'y=%s'
+
+                }
+
+            }],        
+
+        series: [{
+
+            name: 'value',
+
+            type: 'line',
+
+            data: [%s],
+
+
+        }]
+
+    });
+      });
+      </script>
+
+
+    </body>
+    </html>''' % (code, table, col, d, col, c)
+
+    with open(f"{code}.html", 'w') as f: f.write(html)
+    
+    os.startfile(f"{code}.html")
+
+def add_html_table(data):
+
+    return data.to_html(classes="table")
+
+table = add_html_table(data)
+#draw_data_html(code, data, 'close', table)
+    
+def calculate_rsi(data, N):
+
+    delta = data['close'].diff()
+    gain = delta.copy()
+    loss = delta.copy()
+
+    gain[gain < 0] = 0
+    loss[loss > 0] = 0
+    loss = abs(loss)
+
+    avg_gain = gain.rolling(window=N, min_periods=1).mean()
+    avg_loss = loss.rolling(window=N, min_periods=1).mean()
+
+    rs = avg_gain / (avg_loss + 1e-6)  # Avoid division by zero
+    data['rsi'+str(N)] = 100 - (100 / (1 + rs))
+
+    return data
+
+def calculate_rsix(data, N, M):
+    calculate_rsi(data, N)
+    calculate_rsi(data, M)
+    data['rsi'+str(N)+'over'+str(M)] = ''
+    rsi_position = data['rsi'+str(N)] > data['rsi'+str(M)]
+    data.loc[rsi_position[(rsi_position == True) & (rsi_position.shift() == False)].index, 'rsi'+str(N)+'over'+str(M)] = 'up'
+    data.loc[rsi_position[(rsi_position == False) & (rsi_position.shift() == True)].index, 'rsi'+str(N)+'over'+str(M)] = 'down'
+    return data
+
+
+calculate_rsix(data, 5, 10)
+
+import numpy as np
+def calculate_nine(mkt_data, n = 4):
+
+    close = data['close']# 1. ud
+    close_diff_n = close - close.shift(n)
+    ud = np.sign(close_diff_n).fillna(0)# 2. cumu_ud
+    cumu_ud = np.zeros(shape = ud.shape)
+    add_v = 0
+
+    for i, ud_i in enumerate(ud):
+
+        if add_v == 0:
+            add_v = ud_i
+            cumu_ud[i] = ud_i
+        else :
+            if add_v * ud_i < 0: #
+                cumu_ud[i] = ud_i
+                add_v = ud_i
+            else :
+                if abs(ud_i) != 0:
+                    add_v += ud_i
+                    if abs(add_v) <= 9:
+                        cumu_ud[i] = add_v
+                    else :
+                        if add_v > 0:
+                            cumu_ud[i] = 1
+                            add_v = 1
+                        else :
+                            cumu_ud[i] = -1
+                            add_v = -1
+                else :
+                    add_v = add_v + 1
+    label_ago = cumu_ud
+    label = np.zeros(shape = label_ago.shape)
+    for i, ud_i in enumerate(label_ago):
+        if ud_i == -9:
+            for k in range(9):
+                label[i - k] = -9 + k
+        elif ud_i == 9:
+            for k in range(9):
+                label[i - k] = 9 - k
+        else :
+            pass
+    mkt_data['nine'] = label.astype('int')
+    mkt_data["nine"] = mkt_data["nine"].replace(0, "")
+    mkt_data['ninec'] = label_ago
+    mkt_data['ninec'] = mkt_data['ninec'].apply(int)
+
+    return mkt_data
+data = calculate_nine(data)
+
+def calculate_roc(data, n = 5):
+    data['roc'] = 100 * (data['close'] - data['close'].shift(n)) / data['close'].shift(n)
+    return data
+
+def calculate_rocx(data, n, P):
+    calculate_roc(data)
+    data['aroc'] = data['roc'].rolling(window=P).mean()
+    data['roc_corss'] = ''
+    position = data['roc'] > data['aroc']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'roc_corss'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True)].index, 'roc_corss'] = 'dead'
+    return data
+	
+calculate_rocx(data, 5, 10)
+
+def calculate_dma(data, N, M):
+    calculate_ma(data, N)
+    calculate_ma(data, M)
+    data['dma'] = data['m'+str(N)] - data['m'+str(M)] 
+    return data
+
+def calculate_dmax(data, N, M, P):
+    calculate_dma(data, N, M)
+    data['ama'] = data['dma'].rolling(window=P, min_periods=1).mean()
+    data['dma_corss'] = ''
+    position = data['dma'] > data['ama']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'dma_corss'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True)].index, 'dma_corss'] = 'dead'
+    return data
+
+calculate_dmax(data, 5, 10, 6)
+
+def calculate_psy(data, N, M):
+    #N=12, M=6
+    up_days = data['close'] > data['close'].shift(1)
+
+    up_days_in_period = up_days.rolling(window=N, min_periods=1).sum()
+ 
+    psy = (up_days_in_period / N) * 100
+ 
+    mapsy = psy.rolling(window=M).mean()
+
+    data['psy'] = psy
+
+    return data
+
+def calculate_dpo(data, N):
+    #N=20, M=6
+
+    ma = data['close'].rolling(N).mean()
+ 
+    dpo = data['close'] - ma.shift(round(N/2) + 1)
+ 
+    data['dpo'] = dpo
+
+    return data 
+
+def calculate_dpox(data, N, M):
+    calculate_dpo(data, N)
+    data['adpo'] = data['dpo'].rolling(M).mean()
+
+    data['dpo_corss'] = ''
+    position = data['dpo'] > data['adpo']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'dpo_corss'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True)].index, 'dpo_corss'] = 'dead'
+    return data
+
+calculate_dpox(data, 5, 10)
+print(data.columns)
+open_data_html(code, data)
+
+print(date1, "=>", date2, ":", get_days(date1, date2), "last days")
+data = filter_data_date(data, date1, date2)
+print(date1, "=>", date2, ":", data.shape[0], "trade days")
+
+orgm = data['close'].mean()
+print("org mean:", orgm)
+print(data.loc[[0], 'close'], data.loc[[2], 'close'])
+'''
+chips = pd.DataFrame()
+
+# stock price
+chips.loc[0, '价格'] = 0#df['前收盘价'][0]  # 发行价格
+chips.loc[0, '比例'] = 1
+for index, row in df.iterrows():
+
+    price = row['收盘']
+    turn_over = row['换手率']
+    #print (price, turn_over)
+    # 如果价格从未出现过
+    if price not in chips['价格'].tolist():
+        # 所有价格的筹码比例 ×（1 - 换手率）
+        chips['比例'] = chips['比例'] * (1 - turn_over)
+        # 将新价格添加到筹码分布中
+        _t = pd.DataFrame({'价格': [price], '比例': [turn_over]})
+        chips = pd.concat([chips, _t], ignore_index=True)
+
+    # 如果价格出现过
+    else:
+        # 所有价格的筹码比例 ×（1 - 换手率）
+        chips['比例'] = chips['比例'] * (1 - turn_over)
+        # 当日价格的筹码在之前变动的基础上加上今日换手率
+        chips.loc[chips['价格'] == price, '比例'] += turn_over
+
+# 按照价格从大到小排序
+# chips.sort_values('价格', inplace=True, ascending=False)
+# chips.reset_index(inplace=True, drop=True)
+# chips[chips['比例'] >= 0.0001].to_csv('筹码分布结果.csv', index=False)
+
+#print(chips.to_markdown())
+
+
+
+# ====对筹码进行汇总
+chips['价格_汇总'] = np.round(chips['价格'], 0)
+chips = chips.groupby('价格_汇总')[['比例']].sum()
+#chips.sort_values('价格_汇总', inplace=True, ascending=False)
+#chips[chips['比例'] >= 0.0001].to_csv('筹码分布结果_汇总.csv')
+
+chips.sort_values('比例', inplace=True, ascending=True)
+print(chips.to_markdown())
+
+### fund has no below, only close
+### stock has low high
+#data = get_stock_price(code)
+
+def calculate_kdj(data, N): 
+
+    low_list = data['low'].rolling(window=N, min_periods=1).min()
+
+    high_list = data['high'].rolling(window=N, min_periods=1).max()
+
+    data['rsv'] = (data['close'] - low_list) / (high_list - low_list) * 100
+
+    data['k'] = data['rsv'].ewm(com=2).mean()
+
+    data['d'] = data['k'].ewm(com=2).mean()
+
+    data['j'] = 3 * data['k'] - 2 * data['d']
+    
+    return data
+
+def calculate_kdjx(data, N):
+    
+    calculate_kdj(data, N)
+    data['kdj_cross'] = ''
+    position = data['k'] > data['d']
+    data.loc[position[(position == True) & (position.shift() == False)].index, 'kdj_cross'] = 'gold'
+    data.loc[position[(position == False) & (position.shift() == True )].index, 'kdj_cross'] = 'dead'
+    return data
+
+def calculate_dmi(data, N, M):
+    # N=14, M=6
+    high = data['high']
+    low = data['low']
+    close = data['close']
+ 
+    tr1 = high - low
+    tr2 = abs(high - close.shift(1))
+    tr3 = abs(close.shift(1) - low)
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    mtr = tr.rolling(N, min_periods=1).sum()
+ 
+    hd = high - high.shift(1)
+    ld = low.shift(1) - low  #fix shift 
+    hd[hd < 0] = 0  
+    hd[hd < ld] = 0  
+    ld[ld < 0] = 0  
+    ld[ld < hd] = 0  
+ 
+    dmp = hd.rolling(N, min_periods=1).sum()
+    dmm = ld.rolling(N, min_periods=1).sum()
+ 
+    pdi = 100 * (dmp / mtr)
+    mdi = 100 * (dmm / mtr)
+ 
+    dx = 100 * abs(mdi - pdi) / (mdi + pdi)
+    adx = dx.rolling(M).mean()
+ 
+    adxr = (adx + adx.shift(M)) / 2
+ 
+    data['pdi'] = pdi
+    data['mdi'] = mdi
+    data['adx'] = adx
+    data['adxr'] = adxr
+ 
+    return data
+
+def calculate_wr(data, N):
+    
+    high = data['high'].rolling(N).max()
+    close = date['close']
+
+    low = data['low'].rolling(N).min()
+ 
+    epsilon = np.finfo(float).eps
+
+    data['wr'] = (high - close) / (high - low + epsilon) * 100
+ 
+    return data
+
+
+### have volume
+def calculate_vwap(data):
+    data['vwap'] = (data['close'] * data['volume']).cumsum() / data['volume'].cumsum()
+    return data
+
+def calculate_emv(data, N, M):
+    data['mav'] = data['volume'].rolling(window=N).mean()
+    data['vol'] = data['mav'] / data['volume']
+
+    data['mid'] = 100 * (data['high'] + data['low'] - data['high'].shift(1) - data['low'].shift(1)) / (
+            data['high'] + data['low'])
+    hl = data['high'] - data['low']
+    mahl = data['hl'].rolling(window=N).mean()
+    data['emv'] = data['mid'] * data['volumne'] * hl / mahl
+    data['emv'] = data['emv'].rolling(window=N).mean()
+
+    data['maemv'] = data['emv'].rolling(window=M).mean()
+
+    return data
+'''

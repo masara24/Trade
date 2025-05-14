@@ -31,4 +31,4 @@ adb pull /storage/emulated/0/qpython/stocks3/cm.py
 
 adb pull /sdcard/qpython/projects3/qpy-db/qa.db
 
-
+adb shell ls /sdcard/qpython
