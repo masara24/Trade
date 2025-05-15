@@ -1,34 +1,12 @@
-
-'''
-# write a boduan
-stock_code = '017170'; stockavg = 1.92; zgs = 33.62# yi
-st = '20250415'
-
-et  = '2025-05-14'
-
-
-
-df = ef.fund.get_quote_history(stock_code)
-st  = '2025-04-15'
-#df = df[df['日期'>st]]
-
-print (df[::-1])
-'''
-
 ###based on efinance###
 
 # -*- coding:utf-8 -*-
-s = True
 
-code = '07500'
+code = 'unh'
 
-s = False
+date1 = '2025-04-22' 
 
-code = '017170'
-
-date1 = '2025-04-15' 
-
-date2 =  '2025-05-15' 
+date2 =  '2025-04-29' 
 
 import datetime
 
@@ -44,22 +22,16 @@ def get_today():
 
     return str(my_today)
 
-	
-def get_days(st, et):
+date2 = get_today()
+print(date2)
 
-    date1 = datetime.datetime.strptime(st, "%Y-%m-%d")
-    date2 = datetime.datetime.strptime(et, "%Y-%m-%d")
-    return (date2 - date1).days
-
-
-
-today = get_today()
 data = {
-    'code': [code],
-    'today': [today]
-}
 
-print(data)
+    'date': [date2],
+
+    'code': [code]
+
+}
 
 import pandas as pd
 
@@ -95,8 +67,7 @@ def get_fund_close(code):
 
     return (data[['date', 'close']])
 
-if s: data = get_stock_close(code)
-else: data = get_fund_close(code)
+data = get_stock_close(code)
 
 def filter_data_date(data, date1, date2):
 
@@ -126,12 +97,17 @@ def add_flow(code, mkt_data):
 	
     return (df[['date', 'close', 'flow', 'ratio']])
 
+data = add_flow(code, data)
 
 def draw_data_column(): return 0
 
 def save_data_csv(code, data):
 
     return data.to_csv(f"{code}.csv")
+
+def save_data_json(code, data):
+
+    return data.to_csv(f"{code}.json")
 
 import os
 
@@ -194,11 +170,16 @@ def calculate_macdx(data, N, M, P):
 
 calculate_macdx(data, 12, 26, 9)
 
+
 def filter_data_column(data, column):
 
     data = data[column]
 
     return data
+
+data = filter_data_value(data, 'flow', 0, 100000)
+#data = filter_data_column(data, ["date", "close", "5over10"])
+
 
 def read_data_csv(path):
     return pd.read_csv(path)
@@ -388,7 +369,6 @@ def calculate_rocx(data, n, P):
     data.loc[position[(position == True) & (position.shift() == False)].index, 'roc_corss'] = 'gold'
     data.loc[position[(position == False) & (position.shift() == True)].index, 'roc_corss'] = 'dead'
     return data
-	
 calculate_rocx(data, 5, 10)
 
 def calculate_dma(data, N, M):
@@ -407,6 +387,7 @@ def calculate_dmax(data, N, M, P):
     return data
 
 calculate_dmax(data, 5, 10, 6)
+#print(data)
 
 def calculate_psy(data, N, M):
     #N=12, M=6
@@ -429,6 +410,8 @@ def calculate_dpo(data, N):
  
     dpo = data['close'] - ma.shift(round(N/2) + 1)
  
+    
+
     data['dpo'] = dpo
 
     return data 
@@ -444,63 +427,12 @@ def calculate_dpox(data, N, M):
     return data
 
 calculate_dpox(data, 5, 10)
-print(data.columns)
+
+
 open_data_html(code, data)
 
-print(date1, "=>", date2, ":", get_days(date1, date2), "last days")
-data = filter_data_date(data, date1, date2)
-print(date1, "=>", date2, ":", data.shape[0], "trade days")
-
-orgm = data['close'].mean()
-print("org mean:", orgm)
-print(data.loc[[0], 'close'], data.loc[[2], 'close'])
-'''
-chips = pd.DataFrame()
-
-# stock price
-chips.loc[0, '价格'] = 0#df['前收盘价'][0]  # 发行价格
-chips.loc[0, '比例'] = 1
-for index, row in df.iterrows():
-
-    price = row['收盘']
-    turn_over = row['换手率']
-    #print (price, turn_over)
-    # 如果价格从未出现过
-    if price not in chips['价格'].tolist():
-        # 所有价格的筹码比例 ×（1 - 换手率）
-        chips['比例'] = chips['比例'] * (1 - turn_over)
-        # 将新价格添加到筹码分布中
-        _t = pd.DataFrame({'价格': [price], '比例': [turn_over]})
-        chips = pd.concat([chips, _t], ignore_index=True)
-
-    # 如果价格出现过
-    else:
-        # 所有价格的筹码比例 ×（1 - 换手率）
-        chips['比例'] = chips['比例'] * (1 - turn_over)
-        # 当日价格的筹码在之前变动的基础上加上今日换手率
-        chips.loc[chips['价格'] == price, '比例'] += turn_over
-
-# 按照价格从大到小排序
-# chips.sort_values('价格', inplace=True, ascending=False)
-# chips.reset_index(inplace=True, drop=True)
-# chips[chips['比例'] >= 0.0001].to_csv('筹码分布结果.csv', index=False)
-
-#print(chips.to_markdown())
-
-
-
-# ====对筹码进行汇总
-chips['价格_汇总'] = np.round(chips['价格'], 0)
-chips = chips.groupby('价格_汇总')[['比例']].sum()
-#chips.sort_values('价格_汇总', inplace=True, ascending=False)
-#chips[chips['比例'] >= 0.0001].to_csv('筹码分布结果_汇总.csv')
-
-chips.sort_values('比例', inplace=True, ascending=True)
-print(chips.to_markdown())
-
-### fund has no below, only close
-### stock has low high
-#data = get_stock_price(code)
+### have low high
+data = get_stock_price(code)
 
 def calculate_kdj(data, N): 
 
@@ -597,4 +529,3 @@ def calculate_emv(data, N, M):
     data['maemv'] = data['emv'].rolling(window=M).mean()
 
     return data
-'''
