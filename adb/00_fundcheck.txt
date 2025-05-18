@@ -51,8 +51,6 @@ def get_days(st, et):
     date2 = datetime.datetime.strptime(et, "%Y-%m-%d")
     return (date2 - date1).days
 
-
-
 today = get_today()
 data = {
     'code': [code],
@@ -142,6 +140,11 @@ def open_data_html(code, data):
     with open(f"{code}.html", 'w') as f: f.write(f"<center>{t}</center>")
     
     os.startfile(f"{code}.html")
+
+def calculate_weekday(data):
+    
+    data['day'] = pd.to_datetime(data['date']).dt.day_name()
+    return data
 
 def calculate_ma(data, N):
     
@@ -444,6 +447,7 @@ def calculate_dpox(data, N, M):
     return data
 
 calculate_dpox(data, 5, 10)
+calculate_weekday(data)
 print(data.columns)
 open_data_html(code, data)
 
