@@ -23,7 +23,7 @@ def get_today():
     return str(my_today)
 
 date2 = get_today()
-print(date2)
+print("today is", date2)
 
 data = {
 
@@ -67,8 +67,6 @@ def get_fund_close(code):
 
     return (data[['date', 'close']])
 
-data = get_stock_close(code)
-
 def filter_data_date(data, date1, date2):
 
     data = data[(data['date'] <= date2) & (data['date'] >= date1)].reset_index(drop=True)
@@ -80,8 +78,6 @@ def filter_data_value(data, column, value1, value2):
     data = data[(data[column] <= value2) & (data[column] >= value1)].reset_index(drop=True)
 
     return (data)
-
-data = filter_data_value(data, 'close', 0, 100000)
 
 def add_flow(code, mkt_data):
 
@@ -96,8 +92,6 @@ def add_flow(code, mkt_data):
     df.rename(columns={'流入':'flow', '涨跌幅':'ratio'}, inplace=True)
 	
     return (df[['date', 'close', 'flow', 'ratio']])
-
-data = add_flow(code, data)
 
 def draw_data_column(): return 0
 
@@ -135,8 +129,6 @@ def calculate_pass(data, N, M):
     data.loc[ma_position[(ma_position == False) & (ma_position.shift() == True)].index, str(N)+'over'+str(M)] = 'down'
     return data
 
-calculate_pass(data, 5, 10)
-
 def calculate_jump(data):
     data['openjump'] = data['open'] - data['close'].shift(1)
     data['highlow'] = datap['high'] - data['low']
@@ -168,18 +160,11 @@ def calculate_macdx(data, N, M, P):
     data.loc[position[(position == False) & (position.shift() == True )].index, 'macd_cross'] = 'dead'
     return data
 
-calculate_macdx(data, 12, 26, 9)
-
-
 def filter_data_column(data, column):
 
     data = data[column]
 
     return data
-
-data = filter_data_value(data, 'flow', 0, 100000)
-#data = filter_data_column(data, ["date", "close", "5over10"])
-
 
 def read_data_csv(path):
     return pd.read_csv(path)
@@ -273,9 +258,6 @@ def add_html_table(data):
 
     return data.to_html(classes="table")
 
-table = add_html_table(data)
-#draw_data_html(code, data, 'close', table)
-    
 def calculate_rsi(data, N):
 
     delta = data['close'].diff()
@@ -302,9 +284,6 @@ def calculate_rsix(data, N, M):
     data.loc[rsi_position[(rsi_position == True) & (rsi_position.shift() == False)].index, 'rsi'+str(N)+'over'+str(M)] = 'up'
     data.loc[rsi_position[(rsi_position == False) & (rsi_position.shift() == True)].index, 'rsi'+str(N)+'over'+str(M)] = 'down'
     return data
-
-
-calculate_rsix(data, 5, 10)
 
 import numpy as np
 def calculate_nine(mkt_data, n = 4):
@@ -355,7 +334,6 @@ def calculate_nine(mkt_data, n = 4):
     mkt_data['ninec'] = mkt_data['ninec'].apply(int)
 
     return mkt_data
-data = calculate_nine(data)
 
 def calculate_roc(data, n = 5):
     data['roc'] = 100 * (data['close'] - data['close'].shift(n)) / data['close'].shift(n)
@@ -369,7 +347,6 @@ def calculate_rocx(data, n, P):
     data.loc[position[(position == True) & (position.shift() == False)].index, 'roc_corss'] = 'gold'
     data.loc[position[(position == False) & (position.shift() == True)].index, 'roc_corss'] = 'dead'
     return data
-calculate_rocx(data, 5, 10)
 
 def calculate_dma(data, N, M):
     calculate_ma(data, N)
@@ -385,9 +362,6 @@ def calculate_dmax(data, N, M, P):
     data.loc[position[(position == True) & (position.shift() == False)].index, 'dma_corss'] = 'gold'
     data.loc[position[(position == False) & (position.shift() == True)].index, 'dma_corss'] = 'dead'
     return data
-
-calculate_dmax(data, 5, 10, 6)
-#print(data)
 
 def calculate_psy(data, N, M):
     #N=12, M=6
@@ -426,14 +400,7 @@ def calculate_dpox(data, N, M):
     data.loc[position[(position == False) & (position.shift() == True)].index, 'dpo_corss'] = 'dead'
     return data
 
-calculate_dpox(data, 5, 10)
-
-
-open_data_html(code, data)
-
 ### have low high
-data = get_stock_price(code)
-
 def calculate_kdj(data, N): 
 
     low_list = data['low'].rolling(window=N, min_periods=1).min()
