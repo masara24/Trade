@@ -1,7 +1,7 @@
 
 '''
 # write a boduan
-stock_code = '017170'; stockavg = 1.92; zgs = 33.62# yi
+stock_code = '004643'; stockavg = 1.92; zgs = 33.62# yi
 st = '20250415'
 
 et  = '2025-05-14'
@@ -458,49 +458,6 @@ print(date1, "=>", date2, ":", data.shape[0], "trade days")
 orgm = data['close'].mean()
 print("org mean:", orgm)
 print(data.loc[[0], 'close'], data.loc[[2], 'close'])
-'''
-chips = pd.DataFrame()
-
-# stock price
-chips.loc[0, '价格'] = 0#df['前收盘价'][0]  # 发行价格
-chips.loc[0, '比例'] = 1
-for index, row in df.iterrows():
-
-    price = row['收盘']
-    turn_over = row['换手率']
-    #print (price, turn_over)
-    # 如果价格从未出现过
-    if price not in chips['价格'].tolist():
-        # 所有价格的筹码比例 ×（1 - 换手率）
-        chips['比例'] = chips['比例'] * (1 - turn_over)
-        # 将新价格添加到筹码分布中
-        _t = pd.DataFrame({'价格': [price], '比例': [turn_over]})
-        chips = pd.concat([chips, _t], ignore_index=True)
-
-    # 如果价格出现过
-    else:
-        # 所有价格的筹码比例 ×（1 - 换手率）
-        chips['比例'] = chips['比例'] * (1 - turn_over)
-        # 当日价格的筹码在之前变动的基础上加上今日换手率
-        chips.loc[chips['价格'] == price, '比例'] += turn_over
-
-# 按照价格从大到小排序
-# chips.sort_values('价格', inplace=True, ascending=False)
-# chips.reset_index(inplace=True, drop=True)
-# chips[chips['比例'] >= 0.0001].to_csv('筹码分布结果.csv', index=False)
-
-#print(chips.to_markdown())
-
-
-
-# ====对筹码进行汇总
-chips['价格_汇总'] = np.round(chips['价格'], 0)
-chips = chips.groupby('价格_汇总')[['比例']].sum()
-#chips.sort_values('价格_汇总', inplace=True, ascending=False)
-#chips[chips['比例'] >= 0.0001].to_csv('筹码分布结果_汇总.csv')
-
-chips.sort_values('比例', inplace=True, ascending=True)
-print(chips.to_markdown())
 
 ### fund has no below, only close
 ### stock has low high
@@ -601,4 +558,4 @@ def calculate_emv(data, N, M):
     data['maemv'] = data['emv'].rolling(window=M).mean()
 
     return data
-'''
+
