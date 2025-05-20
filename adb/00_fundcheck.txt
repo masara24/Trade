@@ -8,7 +8,7 @@ code = '07500'
 
 s = False
 
-code = '004643'
+code = '009063'
 
 date1 = '2025-04-15' 
 
@@ -121,8 +121,10 @@ def open_data_html(code, data):
 
     t = data.to_html()
 
-    s = '''<head><style>table tbody tr td:nth-child(3) { background-color: pink; }
-table tbody tr td:last-child { background-color: green; }
+    s = '''<head><style>table tbody tr td:nth-child(3) { background-color: lightblue; }
+table tbody tr td:last-child { background-color: lightgreen; }
+table tbody tr:hover { background-color: yellow; }
+table tbody td:hover { background-color: pink; }
 </style></head>'''
     # <style> tr:nth-child(5n){ background-color: #ff94e2; } tr:nth-child(5n+1){ background-color: #ffae3e; } tr:nth-child(5n+2){ background-color: #bcff5e; } tr:nth-child(5n+3){ background-color: #38ffca; } tr:nth-child(5n+4){ background-color: #58b2ff; } table { border-collapse: collapse; } </style>
     with open(f"{code}.html", 'w') as f: f.write(f"{s}<body><center><h3>{code}</h3>{t}</center></body>")
