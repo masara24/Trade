@@ -12,6 +12,6 @@ this is important since [seeing](https://masara24.github.io/Trade/) is believing
 
 this is how we calculate, manage the data
 
-- sql
+- json
 
-to store, 
+this is the data format we use...

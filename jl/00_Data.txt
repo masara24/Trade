@@ -285,6 +285,23 @@ def calculate_rsix(data, N, M):
     data.loc[rsi_position[(rsi_position == False) & (rsi_position.shift() == True)].index, 'rsi'+str(N)+'over'+str(M)] = 'down'
     return data
 
+def calculate_boll(data, N, X, Y):
+    #20, 2, 2
+    data['boll'] = data['close'].rolling(window=N).mean()
+    data['bollu'] = data['boll'] + X * data['close'].rolling(window=N).std()
+    data['bolld'] = data['boll'] + Y * data['close'].rolling(window=N).std()
+    return data
+
+def calculate_bbi(data, N1, N2, N3, N4):
+    #N1=3, N2=6, N3=12, N4=24
+    data['ma_' + str(N1)] = data['close'].rolling(N1).mean()
+    data['ma_' + str(N2)] = data['close'].rolling(N2).mean()
+    data['ma_' + str(N3)] = data['close'].rolling(N3).mean()
+    data['ma_' + str(N4)] = data['close'].rolling(N4).mean()
+ 
+    data['bbi'] = (data['ma_' + str(N1)] + data['ma_' + str(N2)] + data['ma_' + str(N3)] + data['ma_' + str(N4)]) / 4
+    return data
+
 import numpy as np
 def calculate_nine(mkt_data, n = 4):
 
@@ -384,8 +401,6 @@ def calculate_dpo(data, N):
  
     dpo = data['close'] - ma.shift(round(N/2) + 1)
  
-    
-
     data['dpo'] = dpo
 
     return data 
@@ -393,7 +408,6 @@ def calculate_dpo(data, N):
 def calculate_dpox(data, N, M):
     calculate_dpo(data, N)
     data['adpo'] = data['dpo'].rolling(M).mean()
-
     data['dpo_corss'] = ''
     position = data['dpo'] > data['adpo']
     data.loc[position[(position == True) & (position.shift() == False)].index, 'dpo_corss'] = 'gold'

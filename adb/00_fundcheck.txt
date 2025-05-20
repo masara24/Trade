@@ -1,20 +1,4 @@
 
-'''
-# write a boduan
-stock_code = '004643'; stockavg = 1.92; zgs = 33.62# yi
-st = '20250415'
-
-et  = '2025-05-14'
-
-
-
-df = ef.fund.get_quote_history(stock_code)
-st  = '2025-04-15'
-#df = df[df['日期'>st]]
-
-print (df[::-1])
-'''
-
 ###based on efinance###
 
 # -*- coding:utf-8 -*-
@@ -24,11 +8,11 @@ code = '07500'
 
 s = False
 
-code = '017170'
+code = '004643'
 
 date1 = '2025-04-15' 
 
-date2 =  '2025-05-15' 
+date2 =  '2025-05-20' 
 
 import datetime
 
@@ -137,7 +121,11 @@ def open_data_html(code, data):
 
     t = data.to_html()
 
-    with open(f"{code}.html", 'w') as f: f.write(f"<center>{t}</center>")
+    s = '''<head><style>table tbody tr td:nth-child(3) { background-color: pink; }
+table tbody tr td:last-child { background-color: green; }
+</style></head>'''
+    # <style> tr:nth-child(5n){ background-color: #ff94e2; } tr:nth-child(5n+1){ background-color: #ffae3e; } tr:nth-child(5n+2){ background-color: #bcff5e; } tr:nth-child(5n+3){ background-color: #38ffca; } tr:nth-child(5n+4){ background-color: #58b2ff; } table { border-collapse: collapse; } </style>
+    with open(f"{code}.html", 'w') as f: f.write(f"{s}<body><center><h3>{code}</h3>{t}</center></body>")
     
     os.startfile(f"{code}.html")
 
@@ -447,7 +435,31 @@ def calculate_dpox(data, N, M):
     return data
 
 calculate_dpox(data, 5, 10)
+
+def calculate_boll(data, N, X, Y):
+    #20, 2, 2
+    data['boll'] = data['close'].rolling(window=N).mean()
+    data['bollu'] = data['boll'] + X * data['close'].rolling(window=N).std()
+    data['bolld'] = data['boll'] + Y * data['close'].rolling(window=N).std()
+    return data
+
 calculate_weekday(data)
+
+def calculate_bbi(data, N1, N2, N3, N4):
+    #N1=3, N2=6, N3=12, N4=24
+    data['ma_' + str(N1)] = data['close'].rolling(N1).mean()
+    data['ma_' + str(N2)] = data['close'].rolling(N2).mean()
+    data['ma_' + str(N3)] = data['close'].rolling(N3).mean()
+    data['ma_' + str(N4)] = data['close'].rolling(N4).mean()
+ 
+    data['bbi'] = (data['ma_' + str(N1)] + data['ma_' + str(N2)] + data['ma_' + str(N3)] + data['ma_' + str(N4)]) / 4
+    return data
+
+
+calculate_bbi(data, 3, 6, 12, 24)
+
+
+
 print(data.columns)
 open_data_html(code, data)
 
