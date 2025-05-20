@@ -8,7 +8,7 @@ code = '07500'
 
 s = False
 
-code = '009063'
+code = '016579'
 
 date1 = '2025-04-15' 
 
@@ -471,7 +471,12 @@ print(date1, "=>", date2, ":", data.shape[0], "trade days")
 
 orgm = data['close'].mean()
 print("org mean:", orgm)
-print(data.loc[[0], 'close'], data.loc[[2], 'close'])
+
+m = data['close'].max()
+print("max:", m)
+
+m = data['close'].min()
+print("min:", m)
 
 ### fund has no below, only close
 ### stock has low high
