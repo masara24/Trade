@@ -418,8 +418,7 @@ def calculate_dpox(data, N, M):
 calculate_dpox(data, 5, 10)
 
 ### this is where we have data
-print("today date", date2)
-print("chips from", data.date.values[0])
+
 open_data_html(code, data)
 
 ### this is where we want to save the data
@@ -537,6 +536,7 @@ def calculate_cyq(code, date2):
     chips.loc[0, 'percent'] = 1
 
     for index, row in data.iterrows():
+        if index == 0: print("chips from", data.date.values[0])
 
         price = row['close']
         turn_over = row['turnover']
@@ -560,16 +560,17 @@ def calculate_cyq(code, date2):
     chips.sort_values(by='price', inplace=True, ascending=True)
     chips['percent'] = chips['percent'].apply(lambda x: x*100)
     chipsr = chips.copy()
-    chips['summary'] = np.round(chips['price'], 1)
-    chips = chips.groupby('summary')[['percent']].sum()
+    chips['distribution'] = np.round(chips['price'], 1)
+    chips = chips.groupby('distribution')[['percent']].sum()
     
-    #chips.sort_values('summary', inplace=True, ascending=True)
+    #chips.sort_values('distribution', inplace=True, ascending=True)
     
     chips.sort_values('percent', inplace=True, ascending=True)
     chips['percent'] = chips['percent'].apply(lambda x: f'{x:.2f}%')
     pd.set_option('display.max_rows',None)
-    print(chips)
+    print(chips.tail(8))
     return chipsr
 
+print("today date", date2)
 chips = calculate_cyq(code, date2)
 draw_data_html(code, chips, 'price', 'percent', '')

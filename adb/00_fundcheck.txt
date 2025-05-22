@@ -12,7 +12,7 @@ code = '016579'
 
 date1 = '2025-04-15' 
 
-date2 =  '2025-05-20' 
+date2 =  '2025-05-22' 
 
 import datetime
 
@@ -133,7 +133,7 @@ table tbody td:hover { background-color: pink; }
 
 def calculate_weekday(data):
     
-    data['day'] = pd.to_datetime(data['date']).dt.day_name()
+    data['day'] = pd.to_datetime(data['date']).dt.weekday+1#day_name()
     return data
 
 def calculate_ma(data, N):
@@ -477,6 +477,8 @@ print("max:", m)
 
 m = data['close'].min()
 print("min:", m)
+
+
 
 ### fund has no below, only close
 ### stock has low high

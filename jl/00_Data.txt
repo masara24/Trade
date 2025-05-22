@@ -423,7 +423,50 @@ def calculate_dpox(data, N, M):
     data.loc[position[(position == False) & (position.shift() == True)].index, 'dpo_corss'] = 'dead'
     return data
 
+def calculate_maxdown(data):
+
+    ret = data['close'].pct_change()
+    data['ret'] = ret 
+    wealth = 1*(1+ret).cumprod()
+    previos_max = wealth.cummax()
+    data['maxdown'] = (wealth-previos_max)/previos_max
+
+    data['ret'] = data['ret'].apply(lambda x: (x * 100))
+    data['maxdown'] = data['max-%'].apply(lambda x: (x * 100)
+    return data
+
+def calculate_trix(data, N, M):
+    #12, 9
+    ema1 = data['close'].ewm(span=N, adjust=False).mean()
+    ema2 = ema1.ewm(span=N, adjust=False).mean()
+    ema3 = ema2.ewm(span=N, adjust=False).mean()
+ 
+    data['trix'] = (ema3.diff() / ema3.shift(1)) * 100
+    data['matrix'] = data['trix'].rolling(M).mean()
+    return data
+
+def calculate_mtm(data, N, M):
+    #6, 6
+    data['mtm']=data['close']-data['close'].shift(N)
+    data['mtmma']=data['mtm'].rolling(M).mean()
+    return data
+
 ### have low high
+def calculate_chandelier(data, N, M):
+    data['TR'] = data['high'] - data['close']
+    data['TR1'] = abs(data['high'] - data['close'].shift())
+    data['TR2'] = abs(df['low'] - data['high'].shift())
+    data['TR'] = data[['TR', 'TR1', 'TR2']].max(axis=1)
+    data['ATR'] = data['TR'].rolling(window=N).mean()
+    multiplier = 3
+    data['chandelier_exit_long'] = data['high'].rolling(window=N).max() - data['ATR'] * multiplier
+    data['chandelier_exit_short'] = data['low'].rolling(window=N).min() + data['ATR'] * multiplier
+    ema = df['close'].ewm(span=M, adjust=False).mean()
+    multiplier = 2
+    data['chandelieru'] = ema + (multiplier * df['ATR'])
+    data['chandelierl'] = ema - (multiplier * df['ATR'])
+    return data
+
 def calculate_kdj(data, N): 
 
     low_list = data['low'].rolling(window=N, min_periods=1).min()
@@ -503,6 +546,13 @@ def calculate_wr(data, N):
 ### have volume
 def calculate_vwap(data):
     data['vwap'] = (data['close'] * data['volume']).cumsum() / data['volume'].cumsum()
+    return data
+
+def calculate_adl(data):
+    mfm = ((data['close'] - data['low']) - (data['high'] - data['close'])) / (data['high'] - data['low'])
+    mfm = mfm.replace([np.inf, -np.inf], 0)  # replace inf values with 0
+    mfv = mfm * data['volume']
+    data['adl'] = mfv.cumsum()
     return data
 
 def calculate_emv(data, N, M):
