@@ -2,7 +2,7 @@
 
 # -*- coding:utf-8 -*-
 
-code = '02515'
+code = 'unh'
 
 date1 = '2025-04-22' 
 
@@ -32,6 +32,8 @@ data = {
 
 }
 
+print(data)
+
 import pandas as pd
 
 df = pd.DataFrame(data)
@@ -53,6 +55,14 @@ def get_stock_close(code):
 def get_stock_price(code):
 
     data = ef.stock.get_quote_history(code)
+
+    data.rename(columns={'日期':'date',   '开盘':'open','收盘':'close',   '最高':'high',       '最低':'low',      '成交量':'volume',           '成交额':'amount',    '涨跌幅':'ratio','换手率':'turnover'}, inplace=True)
+
+    return (data[['date', 'close', 'high', 'low', 'open', 'volume', 'turnover']])
+
+def get_stock_open(code):
+
+    data = ef.stock.get_quote_history(code, '10000000')
 
     data.rename(columns={'日期':'date',   '开盘':'open','收盘':'close',   '最高':'high',       '最低':'low',      '成交量':'volume',           '成交额':'amount',    '涨跌幅':'ratio','换手率':'turnover'}, inplace=True)
 
@@ -418,7 +428,7 @@ def calculate_dpox(data, N, M):
 calculate_dpox(data, 5, 10)
 
 ### this is where we have data
-
+print(data.columns)
 open_data_html(code, data)
 
 ### this is where we want to save the data
@@ -525,7 +535,7 @@ def calculate_emv(data, N, M):
 
 ### https://quote.eastmoney.com/center/gridlist.html#us_stocks ###
 def calculate_cyq(code, date2):
-    data = get_stock_price(code)
+    data = get_stock_open(code)
     data = data[(data['close'] >= 0)]
     data = data[(data['date'] <= date2)].reset_index(drop=True)
     data['turnover'] = data['turnover']/100
@@ -536,7 +546,7 @@ def calculate_cyq(code, date2):
     chips.loc[0, 'percent'] = 1
 
     for index, row in data.iterrows():
-        if index == 0: print("chips from", data.date.values[0])
+        if index == 0: print("IPO from", data.date.values[0], "=>", date2)
 
         price = row['close']
         turn_over = row['turnover']
@@ -571,6 +581,5 @@ def calculate_cyq(code, date2):
     print(chips.tail(8))
     return chipsr
 
-print("today date", date2)
 chips = calculate_cyq(code, date2)
 draw_data_html(code, chips, 'price', 'percent', '')
