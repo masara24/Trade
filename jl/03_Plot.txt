@@ -31,6 +31,12 @@ plot(x3, y3, title="激发曲线", label="V-I综合曲线", xlabel="加速电压
 #"position: absolute; left:50%; top:50%; transform: translate(-50%, -50%);"
 #cdn
 #""
+
+plot(y, size = (1000, 500), fill = (0, 0.5, :red))
+
+plot(y, pos= (500, 1000), size = (1000, 500), fill = (0, 0.5, :red))
+
+
 ### using csv and dataframe
 using CSV
 using DataFrames
