@@ -1,12 +1,14 @@
+
+### https://quote.eastmoney.com/center/gridlist.html#us_stocks ###
 ###based on efinance###
 
 # -*- coding:utf-8 -*-
 
-code = 'unh'
+code = '02515'
 
 date1 = '2025-04-22' 
 
-date2 =  '2025-05-15' 
+date2 =  '2025-05-26' 
 
 import datetime
 
@@ -533,7 +535,6 @@ def calculate_emv(data, N, M):
 
     return data
 
-### https://quote.eastmoney.com/center/gridlist.html#us_stocks ###
 def calculate_cyq(code, date2):
     data = get_stock_open(code)
     data = data[(data['close'] >= 0)]
