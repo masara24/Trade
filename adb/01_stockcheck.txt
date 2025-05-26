@@ -207,7 +207,7 @@ def draw_data_html(code, data, fcol, col, table):
     html = '''<html>
     <head>
     <meta charset="gbk" />
-    <title>%s</title>
+    <title>%s chips</title>
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
         <script src="http://code.highcharts.com/highcharts.js"></script>
        <script src="http://code.highcharts.com/modules/data.js"></script>   
@@ -270,9 +270,9 @@ def draw_data_html(code, data, fcol, col, table):
     </body>
     </html>''' % (code, table, col, fcol, d, col, c)
 
-    with open(f"{code}.html", 'w') as f: f.write(html)
+    with open(f"{code}_chips.html", 'w') as f: f.write(html)
     
-    os.startfile(f"{code}.html")
+    os.startfile(f"{code}_chips.html")
 
 def add_html_table(data):
 

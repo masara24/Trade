@@ -1,17 +1,10 @@
-{"date":"2025-04-22","close":427.18,"high":431.5,"low":417.12,"open":424.64,"volume":10156865,"turnover":1.12}
-{"date":"2025-04-23","close":427.96,"high":438.85,"low":423.75,"open":427.07,"volume":8345659,"turnover":0.92}
-{"date":"2025-04-24","close":424.25,"high":429.9,"low":423.65,"open":427.57,"volume":7629125,"turnover":0.84}
-{"date":"2025-04-25","close":418.64,"high":423.56,"low":412.02,"open":423.56,"volume":9263777,"turnover":1.02}
-{"date":"2025-04-28","close":420.0,"high":424.12,"low":415.55,"open":419.75,"volume":6614294,"turnover":0.73}
-{"date":"2025-04-29","close":409.23,"high":421.75,"low":409.1,"open":421.19,"volume":9909076,"turnover":1.09}
-{"date":"2025-04-30","close":411.44,"high":413.262,"low":401.0,"open":409.025,"volume":9192825,"turnover":1.01}
-{"date":"2025-05-01","close":400.68,"high":411.99,"low":399.86,"open":411.32,"volume":9316805,"turnover":1.03}
-{"date":"2025-05-02","close":399.92,"high":402.0,"low":393.11,"open":399.96,"volume":11392906,"turnover":1.26}
-{"date":"2025-05-05","close":404.81,"high":409.7,"low":397.59,"open":399.12,"volume":8157196,"turnover":0.9}
-{"date":"2025-05-06","close":394.51,"high":404.72,"low":393.42,"open":402.8,"volume":7858592,"turnover":0.87}
-{"date":"2025-05-07","close":391.06,"high":395.52,"low":385.7,"open":395.35,"volume":8521310,"turnover":0.94}
-{"date":"2025-05-08","close":385.55,"high":390.92,"low":385.37,"open":390.0,"volume":7218320,"turnover":0.8}
-{"date":"2025-05-09","close":380.64,"high":386.553,"low":378.54,"open":385.67,"volume":8381054,"turnover":0.92}
-{"date":"2025-05-12","close":378.75,"high":387.21,"low":376.835,"open":381.0,"volume":11004799,"turnover":1.21}
-{"date":"2025-05-13","close":311.38,"high":342.0,"low":309.1,"open":335.735,"volume":59478308,"turnover":6.56}
-{"date":"2025-05-14","close":308.01,"high":322.94,"low":307.11,"open":321.45,"volume":40029552,"turnover":4.41}
+# save json
+
+# replace the tag content
+fn = "C:/Users/Administrator/AppData/Local/Temp/jl_a10nu92xqL.html"
+with open(fn, 'r', encoding='utf-8') as file: text=file.read()
+new="position: absolute; left:50%; top:50%; transform: translate(-50%, -50%);"
+import re
+pat=r"<div id>.*</div>"
+new_text = re.sub(pat, new, text)
+print(new_text)
