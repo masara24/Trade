@@ -1,0 +1,127 @@
+import efinance as ef
+# fund or stock
+f = True
+code = '02515' # 更新这个地方
+dayfrom = '2025-01-01'
+f = False
+code = '004643' # 更新这个地方
+dayfrom = '2025-01-01'
+# fund or stock
+if f: s = ef.fund.get_quote_history(code)[::-1].reset_index(drop=True); data.rename(columns={'单位净值':'收盘'}, inplace=True)
+else: s = ef.stock.get_quote_history(code); s['成交量'] = s['成交量'].apply(lambda x: float((x / 100000000))) #除以一个亿
+ss = s
+head = (ss.columns.values.tolist())
+print(head)
+#----this plot two lines for different days----#
+
+ns = (ss.loc[ss['日期']>=dayfrom]) 
+
+ns['M5'] = ns['收盘'].rolling(window=5).mean().fillna(0)  
+ns['M10'] = ns['收盘'].rolling(window=10).mean().fillna(0) 
+
+head = (ns.columns.values.tolist())
+dn = '日期' # 更新这个地方
+vn = 'M5'
+cn = 'M10'
+
+d = ''
+v = ''
+c = ''
+for i in head: 
+    
+    for j in ns[i].values: 
+        if i == dn: j = "'"+f'{j}'+"'"; d = d + str(j) + ',' + ' '; 
+        if i == vn: v = v + str(j) + ',' + ' ';
+        if i == cn: c = c + str(j) + ',' + ' ';
+
+d = d[:-2]
+v = v[:-2]
+c = c[:-2]
+print(d, v, c)
+html = '''<html>
+<head>
+<meta charset="UTF-8" />
+<title>Highcharts table</title>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+   <script src="http://code.highcharts.com/modules/data.js"></script>   
+</head>
+<body>
+<div id="container"></div>
+<script language="javascript" type="text/javascript">
+  var chart;
+  $(document).ready(function () {
+    chart = new Highcharts.Chart({
+      chart: {
+        renderTo: 'container',
+        defaultSeriesType: 'line', //line、spline、area、areaspline、bar、column
+        height: document.body.clientHeight - 278,
+      },
+      title: {
+
+        text: '%s Trend'
+
+    },
+
+    xAxis: {
+
+        categories: [%s]
+
+    },
+
+    yAxis: [{
+
+        title: {
+
+            text: '%s'
+
+        }
+
+    }, {
+
+        title: {
+
+            text: '%s'
+
+        },
+
+        opposite: true
+
+    }],
+
+    series: [{
+
+        name: '%s',
+
+        type: 'line',
+
+        color: 'green',
+
+        data: [%s]
+
+    }, {
+
+        name: '%s',
+
+        type: 'line',
+
+        color: 'red',
+
+        data: [%s],
+
+        yAxis: 1
+
+    }]
+
+});
+  });
+  </script>
+%s
+</body>
+</html>''' % (code, d, vn, cn, vn, v, cn, c, '')
+
+with open(f'{code}.html', 'w') as f: f.write(html)
+
+import os 
+#print(os.cwd())
+os.startfile(f'{code}.html')
