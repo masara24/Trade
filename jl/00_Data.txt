@@ -452,10 +452,45 @@ def calculate_mtm(data, N, M):
     return data
 
 ### have low high
+def calculate_kc(data, N, M):
+    tr1 = data['high'] - data['low']
+    tr2 = (abs(data['high'] - data['close'].shift()))
+    tr3 = (abs(data['low'] - data['close'].shift()))
+    frames = [tr1, tr2, tr3]
+    tr = pd.concat(frames, axis = 1, join = 'inner').max(axis = 1)
+    kc_lookback = N
+    atr_lookback = M
+    atr = tr.ewm(alpha = 1/atr_lookback).mean()
+    multiplier = 2
+    data['kc_middle'] = data['close'].ewm(kc_lookback).mean()
+    data['kc_upper'] = data['close'].ewm(kc_lookback).mean() + multiplier * atr
+    data['kc_lower'] = data['close'].ewm(kc_lookback).mean() - multiplier * atr
+    
+    return data
+
+def calculate_cci(data, N):
+    TP = (data['high'] + data['low'] + data['close']) / 3
+    MA = TP.rolling(N).mean()
+    MD = TP.rolling(N).apply(lambda x: np.abs(x - x.mean()).mean())
+
+    data['cci'] = (TP - MA) / (0.015 * MD)
+    return data
+
+def calculate_ao(data, N, M):
+    #5, 34
+    data['ao'] = (data['high'].rolling(N).mean() + data['low'].rolling(N).mean()) / 2 - (data['high'].rolling(M).mean() + data['low'].rolling(M).mean()) / 2
+    return data
+
+def calculate_bbp(data, N):
+    bullPower = data['high'] - data['close'].ewm(span=N).mean()
+    bearPower = data['low'] - data['close'].ewm(span=N).mean()
+    data['bbp'] = bullPower + bearPower
+    return data
+
 def calculate_chandelier(data, N, M):
     data['TR'] = data['high'] - data['close']
     data['TR1'] = abs(data['high'] - data['close'].shift())
-    data['TR2'] = abs(df['low'] - data['high'].shift())
+    data['TR2'] = abs(data['low'] - data['high'].shift())
     data['TR'] = data[['TR', 'TR1', 'TR2']].max(axis=1)
     data['ATR'] = data['TR'].rolling(window=N).mean()
     multiplier = 3
